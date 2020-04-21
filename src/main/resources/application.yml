@@ -1,0 +1,5 @@
+spring.cache:
+  cache-names: sample-redis-cache
+  redis:
+    key-prefix: redisdemo
+    time-to-live: 10000
