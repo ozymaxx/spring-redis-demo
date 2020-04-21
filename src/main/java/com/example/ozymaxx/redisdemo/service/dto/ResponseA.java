@@ -1,6 +1,8 @@
 package com.example.ozymaxx.redisdemo.service.dto;
 
-public class ResponseA {
+import java.io.Serializable;
+
+public class ResponseA implements Serializable {
 
     private String value;
 
