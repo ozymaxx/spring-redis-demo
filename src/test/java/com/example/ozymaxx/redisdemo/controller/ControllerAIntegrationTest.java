@@ -1,6 +1,8 @@
 package com.example.ozymaxx.redisdemo.controller;
 
-import com.example.ozymaxx.redisdemo.configuration.TestRedisConfiguration;
+import com.example.ozymaxx.redisdemo.utilities.RedisConfigurationTestUtilities;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.cache.redis.port: 6370")
 @AutoConfigureMockMvc
 public class ControllerAIntegrationTest {
 
@@ -19,6 +21,20 @@ public class ControllerAIntegrationTest {
     private MockMvc mockMvc;
 
     private static final String TEST_VALUE = "test-value";
+    private static final int REDIS_SERVER_PORT = 6370;
+
+    private static RedisConfigurationTestUtilities redisConfigurationTestUtilities;
+
+    @BeforeAll
+    public static void setUp() {
+        redisConfigurationTestUtilities = new RedisConfigurationTestUtilities(REDIS_SERVER_PORT);
+        redisConfigurationTestUtilities.launchRedisServer();
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        redisConfigurationTestUtilities.stopRedisServer();
+    }
 
     @Test
     public void verifyControllerAReturnsCorrectValue() throws Exception {
