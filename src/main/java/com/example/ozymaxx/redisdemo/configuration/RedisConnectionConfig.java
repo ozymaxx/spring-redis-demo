@@ -1,4 +1,4 @@
-package com.example.ozymaxx.redisdemo.utilities;
+package com.example.ozymaxx.redisdemo.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

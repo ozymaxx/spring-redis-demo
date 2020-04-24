@@ -1,6 +1,6 @@
 package com.example.ozymaxx.redisdemo.controller;
 
-import com.example.ozymaxx.redisdemo.utilities.RedisConfigurationTestUtilities;
+import com.example.ozymaxx.redisdemo.configuration.RedisConfigurationTestUtilities;
 import com.example.ozymaxx.redisdemo.service.BackendA;
 import com.example.ozymaxx.redisdemo.service.dto.ResponseA;
 import org.junit.Assert;
