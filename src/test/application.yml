@@ -1,0 +1,4 @@
+spring.cache:
+  redis:
+    host: localhost
+    port: 6370

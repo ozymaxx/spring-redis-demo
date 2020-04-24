@@ -1,0 +1,6 @@
+spring.cache:
+  cache-names: sample-redis-cache
+  redis:
+    host: localhost
+    port: 6379
+    time-to-live: 10000
