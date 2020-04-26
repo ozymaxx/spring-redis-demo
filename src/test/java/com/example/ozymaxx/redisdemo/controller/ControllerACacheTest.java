@@ -11,16 +11,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(properties = "spring.cache.redis.port: 6370")
+@SpringBootTest
 public class ControllerACacheTest {
 
     private static final String TEST_VALUE = "test-value";
     private static final ResponseA EXPECTED_RESPONSE_A = new ResponseA(TEST_VALUE);
     private static final int REDIS_SERVER_PORT = 6370;
+    private static final String REDIS_CACHE_NAME = "sample-redis-cache";
 
     @MockBean
     private BackendA backendA;
@@ -36,14 +38,17 @@ public class ControllerACacheTest {
         redisConfigurationTestUtilities.launchRedisServer();
     }
 
-    @BeforeEach
-    public void setUpTestCase() {
-        controllerA.evictCache();
-    }
-
     @AfterAll
     public static void tearDown() {
         redisConfigurationTestUtilities.stopRedisServer();
+    }
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @BeforeEach
+    public void setUpTestCase() {
+        controllerA.evictCache();
     }
 
     @Test
@@ -54,5 +59,10 @@ public class ControllerACacheTest {
         responseA = controllerA.backendA(TEST_VALUE);
         Assert.assertEquals(EXPECTED_RESPONSE_A.getValue(), responseA.getValue());
         verify(backendA, times(1)).method(TEST_VALUE);
+        Assert.assertEquals(EXPECTED_RESPONSE_A.getValue(), ((ResponseA) retrieveCachedResponse(TEST_VALUE)).getValue());
+    }
+
+    private Object retrieveCachedResponse(final String key) {
+        return redisTemplate.opsForValue().get(String.format("%s::%s", REDIS_CACHE_NAME, key));
     }
 }
