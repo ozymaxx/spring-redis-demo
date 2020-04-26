@@ -1,4 +1,4 @@
-package com.example.ozymaxx.redisdemo.utilities;
+package com.example.ozymaxx.redisdemo.configuration;
 
 import redis.embedded.RedisServer;
 

@@ -27,7 +27,7 @@ public class ControllerA {
 
     @GetMapping(value = "/{value}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    @Cacheable(value = "sample-redis-cache", key = "#value")
+    @Cacheable(cacheNames = "sample-redis-cache", key = "#value")
     public ResponseA backendA(@PathVariable final String value) {
         LOG.debug("no entry found for {}", value);
         return backendA.method(value);

@@ -1,6 +1,6 @@
 package com.example.ozymaxx.redisdemo.controller;
 
-import com.example.ozymaxx.redisdemo.utilities.RedisConfigurationTestUtilities;
+import com.example.ozymaxx.redisdemo.configuration.RedisConfigurationTestUtilities;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = "spring.cache.redis.port: 6370")
+@SpringBootTest
 @AutoConfigureMockMvc
 public class ControllerAIntegrationTest {
 
