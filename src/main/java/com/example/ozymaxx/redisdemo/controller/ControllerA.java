@@ -2,6 +2,7 @@ package com.example.ozymaxx.redisdemo.controller;
 
 import com.example.ozymaxx.redisdemo.service.BackendA;
 import com.example.ozymaxx.redisdemo.service.dto.ResponseA;
+import com.example.ozymaxx.redisdemo.service.dto.ResponseAUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,5 +32,16 @@ public class ControllerA {
     public ResponseA backendA(@PathVariable final String value) {
         LOG.debug("no entry found for {}", value);
         return backendA.method(value);
+    }
+
+    @PostMapping(value = "/{value}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @CacheEvict(cacheNames = "sample-redis-cache", key = "#value")
+    public ResponseA backendAUpdate(
+            @PathVariable final String value,
+            @RequestBody final ResponseAUpdate updateRequest) {
+        final ResponseA result = backendA.method(value);
+        result.setValue(updateRequest.getNewValue());
+        return result;
     }
 }
