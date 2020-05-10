@@ -41,6 +41,7 @@ public class ControllerAIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private static final String LONG_TEST_VALUE = "this-input-is-longer-than-32-characters";
     private static final String TEST_VALUE = "test-value";
     private static final String NEW_TEST_VALUE = "new-test-value";
     private static final String REDIS_CACHE_NAME = "sample-redis-cache";
@@ -52,7 +53,14 @@ public class ControllerAIntegrationTest {
 
     @Test
     public void verifyControllerAReturnsCorrectValue() throws Exception {
-        mockMvc.perform(get(String.format("/backendA/%s", TEST_VALUE)))
+        mockMvc.perform(get(String.format("/backendA/unconditional/%s", TEST_VALUE)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(String.format("{'value': '%s'}", TEST_VALUE)));
+    }
+
+    @Test
+    public void verifyControllerAConditionalReturnsCorrectValue() throws Exception {
+        mockMvc.perform(get(String.format("/backendA/conditional/%s", TEST_VALUE)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(String.format("{'value': '%s'}", TEST_VALUE)));
     }
@@ -60,7 +68,7 @@ public class ControllerAIntegrationTest {
     @Test
     public void verifyControllerUpdateAReturnsCorrectValue() throws Exception {
         final String requestAsJsonString = objectMapper.writeValueAsString(new ResponseAUpdate(NEW_TEST_VALUE));
-        mockMvc.perform(post(String.format("/backendA/%s", TEST_VALUE))
+        mockMvc.perform(post(String.format("/backendA/unconditional/%s", TEST_VALUE))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestAsJsonString))
                 .andExpect(status().isOk())
@@ -75,6 +83,26 @@ public class ControllerAIntegrationTest {
         Assert.assertEquals(TEST_VALUE, responseA.getValue());
         verify(backendA, times(1)).method(TEST_VALUE);
         Assert.assertEquals(TEST_VALUE, ((ResponseA) retrieveCachedResponse(TEST_VALUE)).getValue());
+    }
+
+    @Test
+    public void verifyRequestsCachedProperlyInBackendAConditional() {
+        ResponseA responseA = controllerA.backendAConditional(TEST_VALUE);
+        Assert.assertEquals(TEST_VALUE, responseA.getValue());
+        responseA = controllerA.backendAConditional(TEST_VALUE);
+        Assert.assertEquals(TEST_VALUE, responseA.getValue());
+        verify(backendA, times(1)).method(TEST_VALUE);
+        Assert.assertEquals(TEST_VALUE, ((ResponseA) retrieveCachedResponse(TEST_VALUE)).getValue());
+    }
+
+    @Test
+    public void verifyRequestsNotCachedWhenLongInputGivenToBackendAConditional() {
+        ResponseA responseA = controllerA.backendAConditional(LONG_TEST_VALUE);
+        Assert.assertEquals(LONG_TEST_VALUE, responseA.getValue());
+        responseA = controllerA.backendAConditional(LONG_TEST_VALUE);
+        Assert.assertEquals(LONG_TEST_VALUE, responseA.getValue());
+        verify(backendA, times(2)).method(LONG_TEST_VALUE);
+        Assert.assertNull(retrieveCachedResponse(LONG_TEST_VALUE));
     }
 
     @Test

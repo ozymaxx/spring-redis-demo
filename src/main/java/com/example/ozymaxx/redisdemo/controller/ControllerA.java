@@ -26,7 +26,7 @@ public class ControllerA {
         LOG.debug("all entries have been evicted");
     }
 
-    @GetMapping(value = "/{value}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/unconditional/{value}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @Cacheable(cacheNames = "sample-redis-cache", key = "#value")
     public ResponseA backendA(@PathVariable final String value) {
@@ -34,7 +34,15 @@ public class ControllerA {
         return backendA.method(value);
     }
 
-    @PostMapping(value = "/{value}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/conditional/{value}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @Cacheable(cacheNames = "sample-redis-cache", key = "#value", condition = "#value.length() < 32")
+    public ResponseA backendAConditional(@PathVariable final String value) {
+        LOG.debug("no entry found for {} - having less than 32 character", value);
+        return backendA.method(value);
+    }
+
+    @PostMapping(value = "/unconditional/{value}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @CacheEvict(cacheNames = "sample-redis-cache", key = "#value")
     public ResponseA backendAUpdate(
