@@ -13,4 +13,8 @@ public class ResponseA implements Serializable {
     public String getValue() {
         return this.value;
     }
+
+    public void setValue(final String value) {
+        this.value = value;
+    }
 }
