@@ -5,3 +5,16 @@ spring.cache:
     host: localhost
     port: 6379
     time-to-live: 10000000
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      backendB:
+        registerHealthIndicator: true
+        slidingWindowSize: 1000
+        minimumNumberOfCalls: 160
+        permittedNumberOfCallsInHalfOpenState: 80
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 70
+        eventConsumerBufferSize: 20
