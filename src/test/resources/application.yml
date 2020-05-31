@@ -2,3 +2,16 @@ spring.cache:
   redis:
     host: localhost
     port: 6370
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      backendB:
+        registerHealthIndicator: true
+        slidingWindowSize: 500
+        minimumNumberOfCalls: 50
+        permittedNumberOfCallsInHalfOpenState: 60
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
