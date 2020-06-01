@@ -30,12 +30,16 @@ public class DemoCircuitBreakerTest {
     public void verifyCircuitBreakerLoadedProperly() {
         final CircuitBreaker circuitBreaker = demoCircuitBreaker.getCircuitBreaker();
         final CircuitBreakerConfig circuitBreakerConfig = circuitBreaker.getCircuitBreakerConfig();
+        Assert.assertEquals(
+                CircuitBreakerConfig.SlidingWindowType.COUNT_BASED, circuitBreakerConfig.getSlidingWindowType());
         Assert.assertEquals(500, circuitBreakerConfig.getSlidingWindowSize());
         Assert.assertEquals(50, circuitBreakerConfig.getMinimumNumberOfCalls());
         Assert.assertEquals(60, circuitBreakerConfig.getPermittedNumberOfCallsInHalfOpenState());
         Assert.assertTrue(circuitBreakerConfig.isAutomaticTransitionFromOpenToHalfOpenEnabled());
         Assert.assertEquals(Duration.ofSeconds(5), circuitBreakerConfig.getWaitDurationInOpenState());
         Assert.assertEquals(50, circuitBreakerConfig.getFailureRateThreshold(), 1e-7);
+        Assert.assertEquals(90, circuitBreakerConfig.getSlowCallRateThreshold(), 1e-7);
+        Assert.assertEquals(Duration.ofMillis(60000), circuitBreakerConfig.getSlowCallDurationThreshold());
     }
 
     @Test
