@@ -7,11 +7,12 @@ resilience4j:
   circuitbreaker:
     instances:
       backendB:
-        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
         slidingWindowSize: 500
         minimumNumberOfCalls: 50
         permittedNumberOfCallsInHalfOpenState: 60
         automaticTransitionFromOpenToHalfOpenEnabled: true
         waitDurationInOpenState: 5s
         failureRateThreshold: 50
-        eventConsumerBufferSize: 10
+        slowCallRateThreshold: 90
+        slowCallDurationThreshold: 60000
