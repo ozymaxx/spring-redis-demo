@@ -1,0 +1,19 @@
+<configuration>
+    <springProfile name="local">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>common</pattern>
+            </encoder>
+        </appender>
+        <appender-ref ref="CONSOLE" />
+    </springProfile>
+    <springProfile name="cloud">
+        <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+            <file>./access.log</file>
+            <encoder>
+                <pattern>common</pattern>
+            </encoder>
+        </appender>
+        <appender-ref ref="FILE" />
+    </springProfile>
+</configuration>
