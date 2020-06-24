@@ -76,7 +76,7 @@ public class DemoBulkheadTest {
         try {
             Thread.sleep(durationInMillis);
         } catch (final InterruptedException ex) {
-            throw new IllegalArgumentException("the sleep call should not have been interrupted");
+            throw new AssertionError("the sleep call should not have been interrupted");
         }
         return SUCCESSFUL_RESULT;
     }
