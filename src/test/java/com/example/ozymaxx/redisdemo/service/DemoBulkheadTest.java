@@ -32,37 +32,18 @@ public class DemoBulkheadTest {
     }
 
     @Test
-    public void verifyWhenBulkheadIsFullFallbackGetsExecuted() throws InterruptedException {
-        final Bulkhead bulkhead = demoBulkhead.getBulkhead();
-        final BulkheadConfig bulkheadConfig = bulkhead.getBulkheadConfig();
-        final int numAttempts = bulkheadConfig.getMaxConcurrentCalls();
-        final ExecutorService executorService = Executors.newFixedThreadPool(numAttempts + 1);
-        final List<Callable<String>> callables = new ArrayList<>();
-        Stream.range(0, numAttempts + 1)
-                .forEach(count ->
-                    callables.add(() ->
-                            demoBulkhead.execute(() ->
-                                    this.methodTakingSomeTime(LONGER_THAN_WAIT_DURATION), this::fallbackMethod))
-                );
-        final List<Future<String>> futures = executorService.invokeAll(callables);
-        Assert.assertEquals(numAttempts, futures.stream().filter(future -> {
-            try {
-                return future.get().equals(SUCCESSFUL_RESULT);
-            } catch (final InterruptedException | ExecutionException e) {
-                throw new AssertionError("the sleep call should not have been interrupted");
-            }
-        }).count());
-        Assert.assertEquals(1, futures.stream().filter(future -> {
-            try {
-                return future.get().equals(FALLBACK_RESULT);
-            } catch (final InterruptedException | ExecutionException e) {
-                throw new AssertionError("the sleep call should not have been interrupted");
-            }
-        }).count());
+    public void verifyWhenBulkheadIsFullButCallsTerminateLateThenFallbackGetsExecuted() throws InterruptedException {
+        verifyWhenBulkheadIsFullFallbackGetsExecuted(1, LONGER_THAN_WAIT_DURATION);
     }
 
     @Test
-    public void verifyWhenBulkheadIsFullFallbackGetsExecuted_() throws InterruptedException {
+    public void verifyWhenBulkheadIsFullButCallsTerminateShortlyThenFallbackNeverGetsExecuted()
+            throws InterruptedException {
+        verifyWhenBulkheadIsFullFallbackGetsExecuted(0, SHORTER_THAN_WAIT_DURATION);
+    }
+
+    private void verifyWhenBulkheadIsFullFallbackGetsExecuted(
+            final int numExpectedFailures, final long sleepDuration) throws InterruptedException {
         final Bulkhead bulkhead = demoBulkhead.getBulkhead();
         final BulkheadConfig bulkheadConfig = bulkhead.getBulkheadConfig();
         final int numAttempts = bulkheadConfig.getMaxConcurrentCalls();
@@ -72,17 +53,17 @@ public class DemoBulkheadTest {
                 .forEach(count ->
                         callables.add(() ->
                                 demoBulkhead.execute(() ->
-                                        this.methodTakingSomeTime(SHORTER_THAN_WAIT_DURATION), this::fallbackMethod))
+                                        this.methodTakingSomeTime(sleepDuration), this::fallbackMethod))
                 );
         final List<Future<String>> futures = executorService.invokeAll(callables);
-        Assert.assertEquals(numAttempts + 1, futures.stream().filter(future -> {
+        Assert.assertEquals(numAttempts + 1 - numExpectedFailures, futures.stream().filter(future -> {
             try {
                 return future.get().equals(SUCCESSFUL_RESULT);
             } catch (final InterruptedException | ExecutionException e) {
                 throw new AssertionError("the sleep call should not have been interrupted");
             }
         }).count());
-        Assert.assertEquals(0, futures.stream().filter(future -> {
+        Assert.assertEquals(numExpectedFailures, futures.stream().filter(future -> {
             try {
                 return future.get().equals(FALLBACK_RESULT);
             } catch (final InterruptedException | ExecutionException e) {
