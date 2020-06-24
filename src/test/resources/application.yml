@@ -4,6 +4,11 @@ spring.cache:
     port: 6370
 
 resilience4j:
+  bulkhead:
+    instances:
+      backendB:
+        maxConcurrentCalls: 7
+        maxWaitDuration: 500
   circuitbreaker:
     instances:
       backendB:
