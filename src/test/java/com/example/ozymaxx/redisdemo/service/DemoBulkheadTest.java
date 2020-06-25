@@ -43,17 +43,18 @@ public class DemoBulkheadTest {
     }
 
     private void verifyWhenBulkheadIsFullFallbackGetsExecuted(
-            final int numExpectedFailures, final long sleepDuration) throws InterruptedException {
+            final int numExpectedFailures, final long sleepDurationForTheFirstCall) throws InterruptedException {
         final Bulkhead bulkhead = demoBulkhead.getBulkhead();
         final BulkheadConfig bulkheadConfig = bulkhead.getBulkheadConfig();
         final int numAttempts = bulkheadConfig.getMaxConcurrentCalls();
         final ExecutorService executorService = Executors.newFixedThreadPool(numAttempts + 1);
         final List<Callable<String>> callables = new ArrayList<>();
-        Stream.range(0, numAttempts + 1)
+        callables.add(() -> demoBulkhead.execute(() -> this.methodTakingSomeTime(sleepDurationForTheFirstCall), this::fallbackMethod));
+        Stream.range(0, numAttempts)
                 .forEach(count ->
                         callables.add(() ->
                                 demoBulkhead.execute(() ->
-                                        this.methodTakingSomeTime(sleepDuration), this::fallbackMethod))
+                                        this.methodTakingSomeTime(LONGER_THAN_WAIT_DURATION), this::fallbackMethod))
                 );
         final List<Future<String>> futures = executorService.invokeAll(callables);
         Assert.assertEquals(numAttempts + 1 - numExpectedFailures, futures.stream().filter(future -> {

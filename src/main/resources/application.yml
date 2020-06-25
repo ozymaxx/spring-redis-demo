@@ -7,6 +7,11 @@ spring.cache:
     time-to-live: 10000000
 
 resilience4j:
+  bulkhead:
+    instances:
+      backendB:
+        maxConcurrentCalls: 7
+        maxWaitDuration: 500
   circuitbreaker:
     instances:
       backendB:
