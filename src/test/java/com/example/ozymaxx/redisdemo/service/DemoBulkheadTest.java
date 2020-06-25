@@ -49,12 +49,18 @@ public class DemoBulkheadTest {
         final int numAttempts = bulkheadConfig.getMaxConcurrentCalls();
         final ExecutorService executorService = Executors.newFixedThreadPool(numAttempts + 1);
         final List<Callable<String>> callables = new ArrayList<>();
-        callables.add(() -> demoBulkhead.execute(() -> this.methodTakingSomeTime(sleepDurationForTheFirstCall), this::fallbackMethod));
+        callables.add(() -> {
+            Thread.sleep(100);
+            return demoBulkhead.execute(
+                    () -> this.methodTakingSomeTime(LONGER_THAN_WAIT_DURATION), this::fallbackMethod);
+        });
         Stream.range(0, numAttempts)
                 .forEach(count ->
                         callables.add(() ->
                                 demoBulkhead.execute(() ->
-                                        this.methodTakingSomeTime(LONGER_THAN_WAIT_DURATION), this::fallbackMethod))
+                                        this.methodTakingSomeTime(
+                                                count == 0 ? sleepDurationForTheFirstCall : LONGER_THAN_WAIT_DURATION),
+                                        this::fallbackMethod))
                 );
         final List<Future<String>> futures = executorService.invokeAll(callables);
         Assert.assertEquals(numAttempts + 1 - numExpectedFailures, futures.stream().filter(future -> {
