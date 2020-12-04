@@ -1,7 +1,19 @@
+buildscript {
+	repositories {
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+	}
+	dependencies {
+		classpath "org.openapitools:openapi-generator-gradle-plugin:4.3.1"
+	}
+}
+
 plugins {
 	id 'org.springframework.boot' version '2.2.6.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+	id 'org.openapi.generator' version '4.3.1'
 }
 
 bootJar {
@@ -13,6 +25,7 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 }
 
@@ -23,14 +36,40 @@ dependencies {
 	compile group: 'ch.qos.logback', name: 'logback-access', version: '1.2.3'
 	compile group: 'net.rakugakibox.spring.boot', name: 'logback-access-spring-boot-starter', version: '2.7.1'
 	compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.2.6.RELEASE'
+	compile group: 'com.example.ozymaxx', name: 'sample-client', version: '1.0.0'
 	compile("io.github.resilience4j:resilience4j-spring-boot2:1.4.0")
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
 	testCompile group: 'junit', name: 'junit', version: '4.12'
 	testCompile group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
+	testCompile group: 'com.squareup.okhttp3', name: 'mockwebserver', version: '4.9.0'
+}
+
+task generateSampleClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+	generatorName = "java"
+	inputSpec = "$rootDir/api-gen/api-spec.yml".toString()
+	outputDir = "$buildDir/api-client-generated".toString()
+	apiPackage = "com.example.ozymaxx.api"
+	invokerPackage = "com.example.ozymaxx.invoker"
+	modelPackage = "com.example.ozymaxx.model"
+	configOptions = [
+			dateLibrary: "java8"
+	]
+	groupId = 'com.example.ozymaxx'
+	id = 'sample-client'
+	skipValidateSpec = true
+	logToStderr = true
+	generateAliasAsModel = false
+	enablePostProcessFile = false
+}
+
+task publishSampleClientToMavenLocal(type: Exec, dependsOn: generateSampleClient) {
+	commandLine './api-gen/publish_client_to_maven_local.sh'
 }
 
 test {
 	useJUnitPlatform()
 }
+
+tasks.compileJava.dependsOn publishSampleClientToMavenLocal

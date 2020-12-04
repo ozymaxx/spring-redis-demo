@@ -1,0 +1,58 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Open API Generator Using Gradle Tutorial
+servers:
+  - url: https://ozymaxx.github.io
+paths:
+  /an/endpoint/{anId}:
+    get:
+      summary: A sample get endpoint
+      operationId: aGetOperation
+      tags:
+        - Sample
+      parameters:
+        - name: anId
+          in: path
+          required: true
+          description: An ID as a path variable
+          schema:
+            type: string
+        - name: qparam
+          in: query
+          description: A query parameter
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: An expected response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Response"
+        default:
+          description: An unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Response:
+      required:
+        - attr
+      properties:
+        attr:
+          type: string
+    Error:
+      required:
+        - httpCode
+        - errorMessage
+      properties:
+        httpCode:
+          type: integer
+          format: int32
+        errorMessage:
+          type: string
