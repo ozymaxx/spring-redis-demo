@@ -24,3 +24,9 @@ resilience4j:
         failureRateThreshold: 70
         slowCallRateThreshold: 90
         slowCallDurationThreshold: 60000
+
+sample-client:
+  url: http://localhost:8082
+  basic-auth:
+    username: username
+    password: password

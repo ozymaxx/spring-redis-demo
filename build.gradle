@@ -43,7 +43,6 @@ dependencies {
 	}
 	testCompile group: 'junit', name: 'junit', version: '4.12'
 	testCompile group: 'it.ozimov', name: 'embedded-redis', version: '0.7.2'
-	testCompile group: 'com.squareup.okhttp3', name: 'mockwebserver', version: '4.9.0'
 }
 
 task generateSampleClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {

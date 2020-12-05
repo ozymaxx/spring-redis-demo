@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: Open API Generator Using Gradle Tutorial
 servers:
-  - url: https://ozymaxx.github.io
+  - url: http://localhost:8082
 paths:
   /an/endpoint/{anId}:
     get:
