@@ -1,2 +1,1 @@
-cd build/api-client-generated
-mvn clean install
+cd build/api-client-generated && mvn clean install
